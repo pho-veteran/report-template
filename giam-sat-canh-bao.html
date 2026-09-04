@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<title>Hệ thống giám sát và cảnh báo</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ TRANG BÌA ============ -->
+<div class="cover">
+  <div class="cover-eyebrow">YODY · KHỐI DEVOPS</div>
+
+  <div class="cover-kicker">Tài liệu hiện trạng hệ thống</div>
+  <div class="cover-title">HỆ THỐNG GIÁM SÁT<br>VÀ CẢNH BÁO</div>
+
+  <hr class="cover-rule">
+  <div class="cover-tagline">Thu thập chỉ số, lưu trữ log, luật cảnh báo, và hiện trạng phủ giám sát</div>
+
+  <table class="cover-meta">
+    <tr><td>Môi trường:</td>        <td>Production và Staging</td></tr>
+    <tr><td>Account AWS:</td>       <td>610881553522 (Unicorn DEV)</td></tr>
+    <tr><td>Region:</td>            <td>ap-southeast-1</td></tr>
+    <tr><td>Phạm vi:</td>           <td>Prometheus, Loki, Alertmanager, và Grafana</td></tr>
+    <tr><td>Phiên bản tài liệu:</td><td>1.0</td></tr>
+    <tr><td>Ngày soạn:</td>         <td>16 tháng 8 năm 2026</td></tr>
+    <tr><td>Người soạn:</td>        <td>Huỳnh Lê Nhất Nghĩa</td></tr>
+    <tr><td>Tình trạng:</td>        <td>Nội bộ</td></tr>
+  </table>
+
+  <div class="cover-note">Số liệu trong tài liệu được đọc trực tiếp từ hệ thống ngày 16/08/2026</div>
+</div>
+
+<!-- ============ MỤC LỤC ============ -->
+<div class="page-break"></div>
+<div class="front-title">Mục lục</div>
+
+<table class="toc">
+  <tr class="lvl1"><td class="toc-txt">1. Giới thiệu</td>                     <td class="toc-page">4</td></tr>
+  <tr class="lvl2"><td class="toc-txt">1.1 Phạm vi và mục đích</td>           <td class="toc-page">4</td></tr>
+  <tr class="lvl2"><td class="toc-txt">1.2 Nguồn số liệu</td>                 <td class="toc-page">4</td></tr>
+  <tr class="lvl2"><td class="toc-txt">1.3 Quy ước trình bày</td>             <td class="toc-page">4</td></tr>
+
+  <tr class="lvl1"><td class="toc-txt">2. Tổng quan kiến trúc</td>            <td class="toc-page">5</td></tr>
+  <tr class="lvl2"><td class="toc-txt">2.1 Sơ đồ luồng dữ liệu</td>           <td class="toc-page">5</td></tr>
+  <tr class="lvl2"><td class="toc-txt">2.2 Phân vai các thành phần</td>       <td class="toc-page">5</td></tr>
+  <tr class="lvl2"><td class="toc-txt">2.3 Hạ tầng đặt hệ giám sát</td>       <td class="toc-page">6</td></tr>
+
+  <tr class="lvl1"><td class="toc-txt">3. Thu thập chỉ số</td>                <td class="toc-page">7</td></tr>
+  <tr class="lvl2"><td class="toc-txt">3.1 Cấu hình Prometheus</td>           <td class="toc-page">7</td></tr>
+  <tr class="lvl2"><td class="toc-txt">3.2 Danh sách mục tiêu thu thập</td>   <td class="toc-page">7</td></tr>
+  <tr class="lvl2"><td class="toc-txt">3.3 Lưu trữ và giữ dữ liệu</td>       <td class="toc-page">8</td></tr>
+
+  <tr class="lvl1"><td class="toc-txt">4. Thu thập log</td>                   <td class="toc-page">9</td></tr>
+  <tr class="lvl2"><td class="toc-txt">4.1 Loki</td>                          <td class="toc-page">9</td></tr>
+  <tr class="lvl2"><td class="toc-txt">4.2 Đường đưa log vào</td>            <td class="toc-page">9</td></tr>
+  <tr class="lvl2"><td class="toc-txt">4.3 Dung lượng theo nhãn</td>         <td class="toc-page">9</td></tr>
+
+  <tr class="lvl1"><td class="toc-txt">5. Cảnh báo</td>                       <td class="toc-page">11</td></tr>
+  <tr class="lvl2"><td class="toc-txt">5.1 Alertmanager</td>                  <td class="toc-page">11</td></tr>
+  <tr class="lvl2"><td class="toc-txt">5.2 Danh sách luật cảnh báo</td>      <td class="toc-page">11</td></tr>
+  <tr class="lvl2"><td class="toc-txt">5.3 Kênh gửi và lịch trực</td>        <td class="toc-page">12</td></tr>
+
+  <tr class="lvl1"><td class="toc-txt">6. Dashboard</td>                      <td class="toc-page">13</td></tr>
+
+  <tr class="lvl1"><td class="toc-txt">7. Rủi ro và khuyến nghị</td>          <td class="toc-page">14</td></tr>
+  <tr class="lvl2"><td class="toc-txt">7.1 Bảng rủi ro</td>                   <td class="toc-page">14</td></tr>
+  <tr class="lvl2"><td class="toc-txt">7.2 Khoảng trống giám sát</td>        <td class="toc-page">14</td></tr>
+
+  <tr class="lvl1"><td class="toc-txt">Phụ lục A. Lệnh vận hành</td>          <td class="toc-page">15</td></tr>
+  <tr class="lvl1"><td class="toc-txt">Phụ lục B. Những điểm dễ hiểu sai</td> <td class="toc-page">16</td></tr>
+</table>
+
+<div class="front-title own-page">Danh mục bảng</div>
+<table class="toc">
+  <tr><td class="toc-txt">Bảng 2.1. Hạ tầng đặt hệ giám sát</td>        <td class="toc-page">6</td></tr>
+  <tr><td class="toc-txt">Bảng 2.2. Phiên bản thành phần</td>           <td class="toc-page">6</td></tr>
+  <tr><td class="toc-txt">Bảng 3.1. Tham số Prometheus</td>             <td class="toc-page">7</td></tr>
+  <tr><td class="toc-txt">Bảng 3.2. Mục tiêu thu thập</td>              <td class="toc-page">7</td></tr>
+  <tr><td class="toc-txt">Bảng 3.3. Quy mô chuỗi thời gian</td>         <td class="toc-page">8</td></tr>
+  <tr><td class="toc-txt">Bảng 4.1. Cấu hình Loki</td>                  <td class="toc-page">9</td></tr>
+  <tr><td class="toc-txt">Bảng 4.2. Dung lượng log theo nhãn</td>       <td class="toc-page">9</td></tr>
+  <tr><td class="toc-txt">Bảng 5.1. Luật cảnh báo đang bật</td>         <td class="toc-page">11</td></tr>
+  <tr><td class="toc-txt">Bảng 5.2. Kênh gửi cảnh báo</td>              <td class="toc-page">12</td></tr>
+  <tr><td class="toc-txt">Bảng 6.1. Dashboard đang dùng</td>            <td class="toc-page">13</td></tr>
+  <tr><td class="toc-txt">Bảng 7.1. Rủi ro theo mức độ</td>             <td class="toc-page">14</td></tr>
+  <tr><td class="toc-txt">Bảng 7.2. Thành phần chưa có giám sát</td>    <td class="toc-page">14</td></tr>
+</table>
+
+<!-- ============ 1 ============ -->
+<h1>1. Giới thiệu</h1>
+
+<h2>1.1 Phạm vi và mục đích</h2>
+<p>Tài liệu ghi lại hiện trạng hệ thống giám sát và cảnh báo đang chạy, gồm cách chỉ số được thu thập, log được đưa vào đâu, luật cảnh báo nào đang bật, và ai nhận cảnh báo. Tài liệu cũng chỉ ra những thành phần hiện chưa được giám sát.</p>
+<p>Tài liệu không đề xuất kiến trúc giám sát mới. Phần khuyến nghị ở mục 7 chỉ nêu việc cần làm với hiện trạng, không mô tả hệ thống thay thế.</p>
+
+<h2>1.2 Nguồn số liệu</h2>
+<p>Cấu hình đọc trực tiếp từ tệp trên máy chủ giám sát. Số lượng chuỗi thời gian và dung lượng lấy từ chính Prometheus và Loki qua API. Danh sách luật cảnh báo đọc từ thư mục rule, đối chiếu với trạng thái đang nạp trên giao diện Prometheus.</p>
+
+<h2>1.3 Quy ước trình bày</h2>
+<p>Tên job, nhãn, đường dẫn, và tham số cấu hình đặt trong phông đơn cách, ví dụ <code>node_exporter</code>. Con số có phần thập phân dùng dấu phẩy. Chỗ nào là suy luận chưa kiểm chứng đều được ghi rõ.</p>
+
+<!-- ============ 2 ============ -->
+<h1>2. Tổng quan kiến trúc</h1>
+
+<h2>2.1 Sơ đồ luồng dữ liệu</h2>
+
+<div class="flow">
+  <div class="node"><b>Mục tiêu được giám sát</b>EC2, ECS task, RDS, ALB</div>
+  <div class="arrow">↓ Prometheus kéo chỉ số mỗi 30 giây</div>
+  <div class="node"><b>Prometheus</b>i-0c47f1a9b2e83d5a6 · cổng 9090</div>
+  <div class="arrow">↓ đánh giá luật, đẩy cảnh báo đang kích hoạt</div>
+  <div class="node"><b>Alertmanager</b>cổng 9093 · gom nhóm và chặn trùng</div>
+  <div class="arrow">↓ gửi ra kênh trực</div>
+  <div class="node"><b>Slack và điện thoại trực</b>kênh #alert-prod · PagerDuty</div>
+</div>
+<div class="figcaption">Hình 2.1. Luồng chỉ số từ mục tiêu tới người trực</div>
+
+<p>Log đi theo đường riêng, không qua Prometheus. Promtail đọc log trên từng máy và đẩy sang Loki, Grafana truy vấn cả hai nguồn.</p>
+
+<div class="flow">
+  <div class="node"><b>Log ứng dụng và hệ thống</b>journald, tệp log container</div>
+  <div class="arrow">↓ Promtail đọc và gắn nhãn</div>
+  <div class="node"><b>Loki</b>cùng máy Prometheus · cổng 3100</div>
+  <div class="arrow">↓ Grafana truy vấn LogQL</div>
+  <div class="node"><b>Grafana</b>cổng 3000 · sau NLB nội bộ</div>
+</div>
+<div class="figcaption">Hình 2.2. Luồng log từ máy nguồn tới Grafana</div>
+
+<h2>2.2 Phân vai các thành phần</h2>
+<p>Prometheus vừa thu thập chỉ số vừa đánh giá luật cảnh báo. Nó không tự gửi thông báo, chỉ chuyển cảnh báo đang kích hoạt sang Alertmanager. Việc gom nhóm, chặn trùng, và chọn kênh gửi đều nằm ở Alertmanager.</p>
+<p>Grafana chỉ đọc, không lưu chỉ số. Mọi dashboard truy vấn trực tiếp vào Prometheus hoặc Loki tại thời điểm mở, nên khi Prometheus dừng thì dashboard trắng dữ liệu dù Grafana vẫn chạy.</p>
+
+<div class="note">
+  <p><span class="lead">Lưu ý.</span> Cả bốn thành phần hiện chạy trên cùng một máy ảo. Máy này dừng thì mất đồng thời chỉ số, log, cảnh báo, và giao diện. Rủi ro đã ghi ở mục 7.1.</p>
+</div>
+
+<h2>2.3 Hạ tầng đặt hệ giám sát</h2>
+
+<div class="caption">Bảng 2.1. Hạ tầng đặt hệ giám sát</div>
+<table class="data">
+  <tr><th style="width:32%">Mục</th><th>Giá trị</th></tr>
+  <tr><td>Instance</td>        <td><code>i-0c47f1a9b2e83d5a6</code>, tag Name <code>monitoring-prod</code></td></tr>
+  <tr><td>Loại máy</td>        <td><code>t3.xlarge</code>, 4 vCPU, 16 GiB</td></tr>
+  <tr><td>Khởi tạo</td>        <td>02/03/2026 09:41</td></tr>
+  <tr><td>Địa chỉ</td>         <td>10.29.248.14, không có địa chỉ công khai</td></tr>
+  <tr><td>Ổ dữ liệu</td>       <td><code>gp3</code> 500 GB, mount tại <code>/var/lib/monitoring</code></td></tr>
+  <tr><td>Security group</td>  <td><code>sg-07d3e1b9a4c2f8065</code>, tên <code>monitoring-sg</code></td></tr>
+  <tr><td>Truy cập giao diện</td><td>qua NLB nội bộ, chỉ từ dải VPN</td></tr>
+</table>
+
+<div class="caption">Bảng 2.2. Phiên bản thành phần</div>
+<table class="data">
+  <tr><th style="width:32%">Thành phần</th><th style="width:24%">Phiên bản</th><th>Cách triển khai</th></tr>
+  <tr><td>Prometheus</td>   <td>2.55.1</td>  <td>systemd unit <code>prometheus.service</code></td></tr>
+  <tr><td>Alertmanager</td> <td>0.28.0</td>  <td>systemd unit <code>alertmanager.service</code></td></tr>
+  <tr><td>Loki</td>         <td>3.3.2</td>   <td>container Docker, restart policy <code>always</code></td></tr>
+  <tr><td>Grafana</td>      <td>11.4.0</td>  <td>container Docker, restart policy <code>always</code></td></tr>
+  <tr><td>Promtail</td>     <td>3.3.2</td>   <td>trên từng máy nguồn, systemd unit</td></tr>
+</table>
+
+<div class="note">
+  <p><span class="lead">Lưu ý.</span> Prometheus và Alertmanager chạy bằng systemd, còn Loki và Grafana chạy bằng Docker. Hai cách quản lý khác nhau trên cùng một máy, nên khi khởi động lại phải nhớ dùng đúng lệnh cho từng thành phần. Xem Phụ lục A.</p>
+</div>
+
+<!-- ============ 3 ============ -->
+<h1>3. Thu thập chỉ số</h1>
+
+<h2>3.1 Cấu hình Prometheus</h2>
+
+<div class="caption">Bảng 3.1. Tham số Prometheus</div>
+<table class="data">
+  <tr><th style="width:42%">Tham số</th><th>Giá trị</th></tr>
+  <tr><td><code>scrape_interval</code></td>      <td>30 giây, áp dụng toàn cục</td></tr>
+  <tr><td><code>evaluation_interval</code></td>  <td>30 giây</td></tr>
+  <tr><td><code>scrape_timeout</code></td>       <td>10 giây</td></tr>
+  <tr><td><code>storage.tsdb.retention.time</code></td><td>15 ngày</td></tr>
+  <tr><td><code>storage.tsdb.path</code></td>    <td><code>/var/lib/monitoring/prometheus</code></td></tr>
+  <tr><td>Tệp cấu hình</td>                      <td><code>/etc/prometheus/prometheus.yml</code></td></tr>
+  <tr><td>Thư mục luật</td>                      <td><code>/etc/prometheus/rules/*.yml</code></td></tr>
+</table>
+
+<h2>3.2 Danh sách mục tiêu thu thập</h2>
+<p>Prometheus dùng <code>ec2_sd_configs</code> để tự tìm mục tiêu theo tag, kết hợp một số mục tiêu khai báo tĩnh. Bảng dưới liệt kê toàn bộ job đang nạp, kèm số mục tiêu đang ở trạng thái <code>up</code>.</p>
+
+<div class="caption">Bảng 3.2. Mục tiêu thu thập</div>
+<table class="data long">
+  <thead>
+    <tr>
+      <th style="width:30%">Job</th>
+      <th style="width:22%">Cách tìm mục tiêu</th>
+      <th class="num">Mục tiêu</th>
+      <th class="num">Đang up</th>
+      <th>Ghi chú</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>node_exporter</code></td>      <td>ec2_sd theo tag</td> <td class="num">34</td><td class="num">34</td><td>toàn bộ EC2 có tag <code>monitor=true</code></td></tr>
+    <tr><td><code>cadvisor</code></td>           <td>ec2_sd theo tag</td> <td class="num">12</td><td class="num">12</td><td>máy có Docker</td></tr>
+    <tr><td><code>order-svc</code></td>          <td>ecs_sd</td>          <td class="num">6</td> <td class="num">6</td> <td>endpoint <code>/metrics</code> cổng 8080</td></tr>
+    <tr><td><code>payment-svc</code></td>        <td>ecs_sd</td>          <td class="num">4</td> <td class="num">4</td> <td>endpoint <code>/metrics</code> cổng 8080</td></tr>
+    <tr><td><code>inventory-svc</code></td>      <td>ecs_sd</td>          <td class="num">4</td> <td class="num">3</td> <td>một task lỗi scrape, xem mục 7.2</td></tr>
+    <tr><td><code>notification-svc</code></td>   <td>ecs_sd</td>          <td class="num">3</td> <td class="num">3</td> <td></td></tr>
+    <tr><td><code>search-svc</code></td>         <td>ecs_sd</td>          <td class="num">2</td> <td class="num">2</td> <td></td></tr>
+    <tr><td><code>gitlab</code></td>             <td>static</td>          <td class="num">1</td> <td class="num">1</td> <td>chỉ số nội bộ GitLab</td></tr>
+    <tr><td><code>gitlab-runner</code></td>      <td>static</td>          <td class="num">1</td> <td class="num">1</td> <td>manager, không gồm worker</td></tr>
+    <tr><td><code>postgres_exporter</code></td>  <td>static</td>          <td class="num">3</td> <td class="num">3</td> <td>ba cụm RDS chính</td></tr>
+    <tr><td><code>redis_exporter</code></td>     <td>static</td>          <td class="num">2</td> <td class="num">2</td> <td>ElastiCache qua exporter trung gian</td></tr>
+    <tr><td><code>blackbox_http</code></td>      <td>static</td>          <td class="num">18</td><td class="num">17</td><td>kiểm tra HTTP từ ngoài vào</td></tr>
+    <tr><td><code>blackbox_tcp</code></td>       <td>static</td>          <td class="num">7</td> <td class="num">7</td> <td>kiểm tra cổng dịch vụ nội bộ</td></tr>
+    <tr><td><code>cloudwatch_exporter</code></td><td>static</td>          <td class="num">1</td> <td class="num">1</td> <td>lấy chỉ số ALB và RDS từ CloudWatch</td></tr>
+    <tr><td><code>alertmanager</code></td>       <td>static</td>          <td class="num">1</td> <td class="num">1</td> <td>tự giám sát</td></tr>
+    <tr><td><code>prometheus</code></td>         <td>static</td>          <td class="num">1</td> <td class="num">1</td> <td>tự giám sát</td></tr>
+    <tr><td><code>loki</code></td>               <td>static</td>          <td class="num">1</td> <td class="num">1</td> <td></td></tr>
+    <tr><td><code>grafana</code></td>            <td>static</td>          <td class="num">1</td> <td class="num">1</td> <td></td></tr>
+    <tr><td><code>staging-node</code></td>       <td>ec2_sd theo tag</td> <td class="num">9</td> <td class="num">8</td> <td>môi trường staging, không gửi cảnh báo</td></tr>
+    <tr><td><code>staging-svc</code></td>        <td>ecs_sd</td>          <td class="num">5</td> <td class="num">5</td> <td>môi trường staging</td></tr>
+  </tbody>
+</table>
+
+<h2>3.3 Lưu trữ và giữ dữ liệu</h2>
+
+<div class="caption">Bảng 3.3. Quy mô chuỗi thời gian</div>
+<table class="data">
+  <tr><th style="width:70%">Mục</th><th class="num">Số liệu</th></tr>
+  <tr><td>Chuỗi thời gian đang hoạt động</td>            <td class="num">1.284.617</td></tr>
+  <tr><td>Mẫu nạp mỗi giây, trung bình</td>              <td class="num">42.800</td></tr>
+  <tr><td>Số job đang nạp</td>                           <td class="num">20</td></tr>
+  <tr><td>Tổng mục tiêu, trong đó đang up</td>           <td class="num">116 / 113</td></tr>
+  <tr><td>Dung lượng TSDB trên đĩa</td>                  <td class="num">137 GB</td></tr>
+  <tr><td>Còn trống trên ổ dữ liệu</td>                  <td class="num">318 GB</td></tr>
+  <tr><td>Thời gian giữ dữ liệu</td>                     <td class="num">15 ngày</td></tr>
+</table>
+
+<div class="note">
+  <p><span class="lead">Lưu ý.</span> Chỉ số chỉ giữ 15 ngày nên không so sánh được cùng kỳ tháng trước. Khi cần dữ liệu dài hạn cho báo cáo dung lượng, hiện phải lấy tay từ CloudWatch. Đây là hạn chế của cấu hình hiện tại, không phải lỗi.</p>
+</div>
+
+<!-- ============ 4 ============ -->
+<h1>4. Thu thập log</h1>
+
+<h2>4.1 Loki</h2>
+
+<div class="caption">Bảng 4.1. Cấu hình Loki</div>
+<table class="data">
+  <tr><th style="width:36%">Mục</th><th>Giá trị</th></tr>
+  <tr><td>Chế độ chạy</td>          <td><code>monolithic</code>, một tiến trình duy nhất</td></tr>
+  <tr><td>Lưu chunk</td>            <td>hệ tệp cục bộ <code>/var/lib/monitoring/loki/chunks</code></td></tr>
+  <tr><td>Thời gian giữ</td>        <td>30 ngày, đặt qua <code>retention_period</code></td></tr>
+  <tr><td>Giới hạn nạp</td>         <td>8 MB mỗi giây cho mỗi nhãn tenant</td></tr>
+  <tr><td>Giới hạn truy vấn</td>    <td>khoảng thời gian tối đa 720 giờ</td></tr>
+</table>
+
+<h2>4.2 Đường đưa log vào</h2>
+<p>Promtail chạy trên từng máy nguồn, đọc <code>journald</code> và tệp log của container, gắn nhãn <code>host</code>, <code>service</code>, và <code>env</code> rồi đẩy sang Loki. Không có hàng đợi trung gian, nên khi Loki không nhận thì Promtail giữ tại chỗ và thử lại.</p>
+
+<pre>scrape_configs:
+  - job_name: journal
+    journal:
+      max_age: 12h
+      labels:
+        job: systemd-journal
+    relabel_configs:
+      - source_labels: ['__journal__systemd_unit']
+        target_label: unit</pre>
+
+<div class="note">
+  <p><span class="lead">Lưu ý.</span> Promtail giữ log tại chỗ khi Loki không nhận, nhưng bộ đệm nằm trong bộ nhớ và giới hạn theo <code>max_age</code> là 12 giờ. Nếu Loki dừng lâu hơn khoảng này thì phần log cũ mất, không có cách lấy lại. Đây là suy luận từ cấu hình, chưa dựng lại để kiểm chứng.</p>
+</div>
+
+<h2>4.3 Dung lượng theo nhãn</h2>
+
+<div class="caption">Bảng 4.2. Dung lượng log theo nhãn</div>
+<table class="data">
+  <tr>
+    <th style="width:34%">Nhãn <code>service</code></th>
+    <th class="num">Dòng mỗi ngày</th>
+    <th class="num">Dung lượng mỗi ngày</th>
+    <th class="num">Tỷ lệ</th>
+  </tr>
+  <tr><td><code>order-svc</code></td>       <td class="num">18.400.000</td><td class="num">9,4 GB</td> <td class="num">38 %</td></tr>
+  <tr><td><code>payment-svc</code></td>     <td class="num">6.210.000</td> <td class="num">4,1 GB</td> <td class="num">17 %</td></tr>
+  <tr><td><code>nginx-access</code></td>    <td class="num">21.700.000</td><td class="num">3,8 GB</td> <td class="num">15 %</td></tr>
+  <tr><td><code>inventory-svc</code></td>   <td class="num">4.050.000</td> <td class="num">2,6 GB</td> <td class="num">11 %</td></tr>
+  <tr><td><code>systemd-journal</code></td> <td class="num">2.900.000</td> <td class="num">1,9 GB</td> <td class="num">8 %</td></tr>
+  <tr><td><code>notification-svc</code></td><td class="num">1.640.000</td> <td class="num">1,2 GB</td> <td class="num">5 %</td></tr>
+  <tr><td><code>search-svc</code></td>      <td class="num">980.000</td>   <td class="num">0,8 GB</td> <td class="num">3 %</td></tr>
+  <tr><td>Còn lại</td>                      <td class="num">610.000</td>   <td class="num">0,7 GB</td> <td class="num">3 %</td></tr>
+</table>
+
+<div class="note">
+  <p><span class="lead">Lưu ý.</span> Tổng khoảng 24,5 GB mỗi ngày, giữ 30 ngày nên cần khoảng 735 GB, vượt dung lượng ổ 500 GB hiện tại. Thực tế chưa đầy ổ vì Loki nén chunk, tỷ lệ nén đo được khoảng 1 phần 4. Con số trong bảng là dung lượng trước nén.</p>
+</div>
+
+<!-- ============ 5 ============ -->
+<h1>5. Cảnh báo</h1>
+
+<h2>5.1 Alertmanager</h2>
+<p>Alertmanager gom cảnh báo theo nhãn <code>alertname</code> và <code>env</code>, chờ 30 giây trước khi gửi nhóm đầu, sau đó cách 5 phút mới gửi lại. Cảnh báo môi trường staging bị chặn hoàn toàn ở tầng route, không gửi ra kênh nào.</p>
+
+<pre>route:
+  group_by: ['alertname', 'env']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: slack-alert-prod
+  routes:
+    - matchers: [ env="staging" ]
+      receiver: devnull
+    - matchers: [ severity="critical" ]
+      receiver: pagerduty-oncall</pre>
+
+<h2>5.2 Danh sách luật cảnh báo</h2>
+<p>Bảng dưới là toàn bộ luật đang nạp, đọc từ thư mục <code>/etc/prometheus/rules</code>. Cột thời gian chờ là khoảng điều kiện phải đúng liên tục trước khi cảnh báo chuyển sang trạng thái kích hoạt.</p>
+
+<div class="caption">Bảng 5.1. Luật cảnh báo đang bật</div>
+<table class="data long">
+  <thead>
+    <tr>
+      <th style="width:30%">Tên luật</th>
+      <th style="width:14%">Mức</th>
+      <th style="width:12%" class="num">Chờ</th>
+      <th>Điều kiện</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td><code>InstanceDown</code></td>          <td>critical</td><td class="num">5m</td> <td><code>up == 0</code></td></tr>
+    <tr><td><code>HighCpuUsage</code></td>          <td>warning</td> <td class="num">15m</td><td>CPU trung bình vượt 85 phần trăm</td></tr>
+    <tr><td><code>HighMemoryUsage</code></td>       <td>warning</td> <td class="num">15m</td><td>bộ nhớ khả dụng dưới 10 phần trăm</td></tr>
+    <tr><td><code>DiskWillFillIn4Hours</code></td>  <td>critical</td><td class="num">10m</td><td>dự báo tuyến tính đầy ổ trong 4 giờ</td></tr>
+    <tr><td><code>DiskSpaceLow</code></td>          <td>warning</td> <td class="num">30m</td><td>còn trống dưới 15 phần trăm</td></tr>
+    <tr><td><code>HighHttp5xxRate</code></td>       <td>critical</td><td class="num">5m</td> <td>tỷ lệ 5xx vượt 2 phần trăm</td></tr>
+    <tr><td><code>HighLatencyP99</code></td>        <td>warning</td> <td class="num">10m</td><td>p99 vượt 2 giây</td></tr>
+    <tr><td><code>TargetScrapeFailing</code></td>   <td>warning</td> <td class="num">10m</td><td>scrape lỗi liên tục</td></tr>
+    <tr><td><code>PostgresConnectionsHigh</code></td><td>warning</td><td class="num">10m</td><td>kết nối vượt 80 phần trăm giới hạn</td></tr>
+    <tr><td><code>PostgresReplicationLag</code></td><td>critical</td><td class="num">5m</td> <td>trễ replica vượt 60 giây</td></tr>
+    <tr><td><code>RedisMemoryHigh</code></td>       <td>warning</td> <td class="num">15m</td><td>bộ nhớ dùng vượt 85 phần trăm</td></tr>
+    <tr><td><code>BlackboxProbeFailed</code></td>   <td>critical</td><td class="num">3m</td> <td>kiểm tra HTTP thất bại</td></tr>
+    <tr><td><code>BlackboxCertExpiringSoon</code></td><td>warning</td><td class="num">1h</td><td>chứng thư hết hạn trong 21 ngày</td></tr>
+    <tr><td><code>SqsQueueBacklog</code></td>       <td>warning</td> <td class="num">15m</td><td>hàng đợi tồn quá 1.000 tin</td></tr>
+    <tr><td><code>EcsServiceUnhealthy</code></td>   <td>critical</td><td class="num">5m</td> <td>task chạy ít hơn số mong muốn</td></tr>
+    <tr><td><code>PrometheusRuleFailures</code></td><td>warning</td> <td class="num">10m</td><td>luật đánh giá lỗi</td></tr>
+    <tr><td><code>AlertmanagerDown</code></td>      <td>critical</td><td class="num">5m</td> <td><code>up{job="alertmanager"} == 0</code></td></tr>
+    <tr><td><code>LokiIngestionErrors</code></td>   <td>warning</td> <td class="num">10m</td><td>lỗi nạp log tăng liên tục</td></tr>
+  </tbody>
+</table>
+
+<h2>5.3 Kênh gửi và lịch trực</h2>
+
+<div class="caption">Bảng 5.2. Kênh gửi cảnh báo</div>
+<table class="data">
+  <tr>
+    <th style="width:26%">Receiver</th>
+    <th style="width:22%">Kênh</th>
+    <th>Áp dụng cho</th>
+  </tr>
+  <tr><td><code>slack-alert-prod</code></td>  <td>Slack <code>#alert-prod</code></td><td>mặc định, mọi cảnh báo production</td></tr>
+  <tr><td><code>pagerduty-oncall</code></td>  <td>PagerDuty</td>                     <td>chỉ mức <code>critical</code></td></tr>
+  <tr><td><code>devnull</code></td>           <td>không gửi</td>                     <td>toàn bộ <code>env="staging"</code></td></tr>
+</table>
+
+<div class="note">
+  <p><span class="lead">Lưu ý.</span> Không có kênh gửi qua thư điện tử. Nếu Slack và PagerDuty cùng gặp sự cố thì không còn đường nào nhận cảnh báo. Đã ghi vào bảng rủi ro.</p>
+</div>
+
+<!-- ============ 6 ============ -->
+<h1>6. Dashboard</h1>
+
+<div class="caption">Bảng 6.1. Dashboard đang dùng</div>
+<table class="data">
+  <tr>
+    <th style="width:34%">Dashboard</th>
+    <th style="width:20%">Nguồn dữ liệu</th>
+    <th>Dùng cho</th>
+  </tr>
+  <tr><td>Tổng quan hạ tầng</td>       <td>Prometheus</td>      <td>CPU, bộ nhớ, đĩa toàn bộ EC2</td></tr>
+  <tr><td>Order Service</td>           <td>Prometheus, Loki</td><td>thông lượng, độ trễ, lỗi theo endpoint</td></tr>
+  <tr><td>Payment Service</td>         <td>Prometheus, Loki</td><td>tỷ lệ thành công theo cổng thanh toán</td></tr>
+  <tr><td>Cơ sở dữ liệu</td>           <td>Prometheus</td>      <td>kết nối, trễ replica, truy vấn chậm</td></tr>
+  <tr><td>Kiểm tra từ ngoài</td>       <td>Prometheus</td>      <td>kết quả blackbox, hạn chứng thư</td></tr>
+  <tr><td>Log tập trung</td>           <td>Loki</td>            <td>tra log theo dịch vụ và khoảng thời gian</td></tr>
+  <tr><td>Sức khoẻ hệ giám sát</td>    <td>Prometheus</td>      <td>tự giám sát bốn thành phần</td></tr>
+</table>
+
+<p>Dashboard được lưu trong cơ sở dữ liệu SQLite của Grafana, chưa đưa vào quản lý phiên bản. Sửa dashboard hiện không để lại dấu vết ai sửa và sửa gì.</p>
+
+<!-- ============ 7 ============ -->
+<h1>7. Rủi ro và khuyến nghị</h1>
+
+<h2>7.1 Bảng rủi ro</h2>
+
+<div class="caption">Bảng 7.1. Rủi ro theo mức độ</div>
+<table class="data">
+  <thead>
+    <tr>
+      <th style="width:12%">Mức</th>
+      <th style="width:40%">Rủi ro</th>
+      <th>Khuyến nghị</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Cao</td>
+      <td>Bốn thành phần giám sát nằm trên một máy, mất máy là mất toàn bộ khả năng quan sát</td>
+      <td>Tách Alertmanager sang máy khác trước, vì đây là đường cảnh báo cuối</td>
+    </tr>
+    <tr>
+      <td>Cao</td>
+      <td>Không có cảnh báo nào theo dõi chính máy giám sát từ bên ngoài</td>
+      <td>Thêm kiểm tra từ ngoài vào, hoặc dùng dịch vụ giám sát độc lập</td>
+    </tr>
+    <tr>
+      <td>Cao</td>
+      <td>Chỉ có Slack và PagerDuty, không có kênh dự phòng</td>
+      <td>Thêm receiver gửi thư điện tử cho mức <code>critical</code></td>
+    </tr>
+    <tr>
+      <td>Trung bình</td>
+      <td>Log cần khoảng 735 GB nếu tính trước nén, ổ chỉ 500 GB, biên an toàn phụ thuộc tỷ lệ nén</td>
+      <td>Giảm thời gian giữ log xuống 14 ngày, hoặc chuyển chunk sang S3</td>
+    </tr>
+    <tr>
+      <td>Trung bình</td>
+      <td>Dashboard chưa vào quản lý phiên bản, sửa không truy vết được</td>
+      <td>Xuất dashboard ra JSON và đưa vào repo</td>
+    </tr>
+    <tr>
+      <td>Thấp</td>
+      <td>Chỉ số giữ 15 ngày, không so được cùng kỳ</td>
+      <td>Cân nhắc lưu dài hạn nếu có nhu cầu báo cáo theo tháng</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>7.2 Khoảng trống giám sát</h2>
+
+<div class="caption">Bảng 7.2. Thành phần chưa có giám sát</div>
+<table class="data">
+  <tr>
+    <th style="width:34%">Thành phần</th>
+    <th style="width:26%">Hiện trạng</th>
+    <th>Hệ quả</th>
+  </tr>
+  <tr><td>GitLab Runner worker</td>      <td>không thu thập</td>      <td>không biết worker treo hay hết đĩa</td></tr>
+  <tr><td>Một task <code>inventory-svc</code></td><td>scrape lỗi</td><td>chỉ số của task này thiếu, cảnh báo có thể bỏ sót</td></tr>
+  <tr><td>Một mục tiêu blackbox</td>     <td>thất bại liên tục</td>  <td>đang bị coi là nhiễu, chưa ai xử lý</td></tr>
+  <tr><td>Hàng đợi SQS phụ</td>          <td>không có luật</td>      <td>tồn đọng không ai biết</td></tr>
+  <tr><td>Chi phí AWS</td>               <td>không giám sát</td>     <td>tăng chi phí chỉ phát hiện khi xem hoá đơn</td></tr>
+</table>
+
+<div class="note">
+  <p><span class="lead">Lưu ý.</span> Mục tiêu blackbox thất bại liên tục làm giảm độ tin của cảnh báo, vì người trực dần quen với việc bỏ qua. Nên xử lý hoặc tắt hẳn luật cho mục tiêu đó, không để treo lơ lửng.</p>
+</div>
+
+<!-- ============ PHỤ LỤC A ============ -->
+<h1>Phụ lục A. Lệnh vận hành</h1>
+
+<h2>A.1 Khởi động lại thành phần</h2>
+<p>Prometheus và Alertmanager dùng systemd, Loki và Grafana dùng Docker.</p>
+
+<pre>sudo systemctl reload prometheus      # nạp lại cấu hình, không mất dữ liệu
+sudo systemctl restart alertmanager
+
+docker restart loki
+docker restart grafana</pre>
+
+<h2>A.2 Kiểm tra cấu hình trước khi nạp</h2>
+
+<pre>promtool check config /etc/prometheus/prometheus.yml
+promtool check rules /etc/prometheus/rules/*.yml
+amtool check-config /etc/alertmanager/alertmanager.yml</pre>
+
+<h2>A.3 Xem mục tiêu đang lỗi</h2>
+
+<pre>curl -s localhost:9090/api/v1/targets \
+  | jq -r '.data.activeTargets[]
+           | select(.health != "up")
+           | "\(.labels.job)\t\(.scrapeUrl)\t\(.lastError)"'</pre>
+
+<h2>A.4 Xem cảnh báo đang kích hoạt</h2>
+
+<pre>amtool --alertmanager.url=http://localhost:9093 alert query
+curl -s localhost:9090/api/v1/rules | jq -r '.data.groups[].name'</pre>
+
+<h2>A.5 Kiểm tra dung lượng</h2>
+
+<pre>du -sh /var/lib/monitoring/prometheus /var/lib/monitoring/loki
+df -h /var/lib/monitoring</pre>
+
+<!-- ============ PHỤ LỤC B ============ -->
+<h1>Phụ lục B. Những điểm dễ hiểu sai</h1>
+
+<h2>B.1 Prometheus không gửi cảnh báo</h2>
+<p>Prometheus chỉ đánh giá luật rồi chuyển cảnh báo sang Alertmanager. Khi không nhận được thông báo, cần xem cả hai chỗ: luật có kích hoạt trên Prometheus không, và Alertmanager có gửi ra kênh không. Luật kích hoạt mà không ai nhận được thường là lỗi ở route hoặc receiver.</p>
+
+<h2>B.2 Cảnh báo staging không mất, chỉ không gửi</h2>
+<p>Cảnh báo môi trường staging vẫn kích hoạt và vẫn thấy trên giao diện, nhưng bị route vào receiver <code>devnull</code>. Nếu thấy cảnh báo staging trên Prometheus mà Slack im, đó là đúng thiết kế.</p>
+
+<h2>B.3 Grafana trắng dữ liệu không có nghĩa là Grafana lỗi</h2>
+<p>Grafana không lưu chỉ số. Dashboard trắng thường là do Prometheus hoặc Loki không trả dữ liệu, không phải do Grafana. Kiểm tra nguồn dữ liệu trước khi khởi động lại Grafana.</p>
+
+<h2>B.4 Số trong bảng dung lượng log là trước nén</h2>
+<p>Bảng 4.2 ghi dung lượng trước nén để so tỷ lệ giữa các dịch vụ. Dung lượng thực trên đĩa nhỏ hơn khoảng 4 lần. Đừng lấy trực tiếp con số này để tính nhu cầu ổ.</p>
+
+<h2>B.5 Thời gian chờ không phải độ trễ phát hiện</h2>
+<p>Cột chờ ở Bảng 5.1 là khoảng điều kiện phải đúng liên tục. Tổng thời gian từ lúc có sự cố tới lúc người trực nhận tin còn cộng thêm chu kỳ đánh giá 30 giây và <code>group_wait</code> 30 giây của Alertmanager.</p>
+
+</body>
+</html>

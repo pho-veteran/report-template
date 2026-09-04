@@ -1,0 +1,317 @@
+/* ============================================================
+   Bộ định dạng tài liệu kỹ thuật - trích xuất từ
+   GitLab-va-GitLab-Runner-hien-trang.pdf
+   Mọi giá trị pt/mm dưới đây là số đo thực tế từ bản PDF gốc.
+   ============================================================ */
+
+@page {
+  size: A4;                            /* 595 x 842 pt */
+  /* Lề đo từ bản gốc: nội dung nằm trong x 62.2 -> 537.8, rộng 475.6pt.
+     Lề trái và lề phải không bằng nhau, giữ đúng để kẻ ngang trùng bản gốc.
+     render.mjs dùng lại chính các số này. */
+  margin: 63.8pt 57.2pt 62.4pt 62.2pt;
+}
+
+html {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+body {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 9pt;               /* thân bài */
+  line-height: 12.5pt;          /* ~1.39 */
+  color: #000;
+  margin: 0;
+  padding: 0;
+  /* Bản gốc căn đều hai bên: 80% dòng dài chạm mép phải. */
+  text-align: justify;
+  orphans: 2;                   /* không để 1 dòng lẻ cuối trang */
+  widows: 2;                    /* không để 1 dòng lẻ đầu trang */
+}
+
+/* ---------- 1. TRANG BÌA ---------- */
+
+.cover {
+  text-align: center;
+  page-break-after: always;
+}
+
+.cover-eyebrow {                 /* YODY · KHỐI DEVOPS */
+  font-size: 9.6pt;
+  letter-spacing: 0.4pt;
+  margin-top: 76.5pt;
+}
+
+.cover-kicker {                  /* Tài liệu hiện trạng hệ thống */
+  font-size: 10.2pt;
+  font-style: italic;
+  margin-top: 69pt;
+}
+
+/* Dùng .cover-title thay cho h1 để không bị luật sang trang của h1.
+   Nếu vẫn muốn dùng h1 ở bìa, phải ghi đè page-break-before như dưới. */
+.cover-title,
+h1.cover-title {
+  font-size: 17.9pt;
+  font-weight: bold;
+  text-transform: uppercase;
+  line-height: 22pt;
+  margin: 14pt 0 0;
+  page-break-before: auto;   /* bìa không được tự sang trang */
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.cover-rule {                    /* gạch ngắn 140pt căn giữa */
+  width: 140pt;
+  height: 1.2pt;
+  background: #000;
+  border: 0;
+  margin: 26pt auto 0;
+}
+
+.cover-tagline {
+  font-size: 10.2pt;
+  margin-top: 10pt;
+}
+
+.cover-meta {                    /* bảng nhãn / giá trị */
+  margin: 62pt auto 0;
+  border-collapse: collapse;
+  font-size: 9pt;
+  text-align: left;
+}
+
+.cover-meta td {
+  padding: 0 0 3.6pt;
+  vertical-align: top;
+}
+
+.cover-meta td:first-child {
+  width: 94.4pt;                 /* nhãn x=166.8 -> giá trị x=261.2 */
+  padding-right: 10pt;
+}
+
+.cover-note {
+  font-size: 8.4pt;
+  font-style: italic;
+  margin-top: 62pt;
+}
+
+/* ---------- 2. MỤC LỤC / DANH MỤC BẢNG ---------- */
+
+.front-title {
+  font-size: 11.9pt;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-align: center;
+  margin: 0 0 20pt;
+  page-break-after: avoid;
+}
+
+/* Bản gốc để Mục lục và Danh mục bảng trên hai trang riêng. Dùng lớp này cho
+   khối thứ hai để nó không tràn vài dòng lẻ sang trang sau. */
+.front-title.own-page {
+  page-break-before: always;
+}
+
+.toc {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9pt;
+}
+
+.toc td {
+  padding: 0 0 3.6pt;
+  vertical-align: bottom;
+}
+
+.toc .toc-page {
+  text-align: right;
+  white-space: nowrap;
+  width: 30pt;
+}
+
+.toc .lvl1 td      { font-weight: bold; }
+.toc .lvl1 .toc-txt { padding-top: 5pt; }
+.toc .lvl2 .toc-txt { padding-left: 20.4pt; }  /* x 62.2 -> 82.6 */
+
+/* ---------- 3. TIÊU ĐỀ ---------- */
+
+/* Tiêu đề, ô bảng, và khối mã không căn đều, chỉ thân bài mới căn đều.
+   Đặt trước các luật căn phải/căn giữa để không phá thứ tự ưu tiên. */
+h1, h2, h3,
+table.data th, table.data td,
+.toc td, .cover-meta td,
+pre, .caption {
+  text-align: left;
+}
+
+h1 {                             /* 1. MÁY CHỦ GITLAB */
+  font-size: 11.3pt;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-bottom: 0.6pt solid #000;
+  padding-bottom: 5.5pt;
+  margin: 0 0 18.4pt;
+  page-break-before: always;
+  page-break-after: avoid;
+}
+
+.cover + h1,
+h1.first { page-break-before: auto; }
+
+h2 {                             /* 3.4 Quy mô và dung lượng */
+  font-size: 9.6pt;
+  font-weight: bold;
+  margin: 21pt 0 8pt;
+  page-break-after: avoid;
+}
+
+h3 {
+  font-size: 9pt;
+  font-weight: bold;
+  margin: 14pt 0 4pt;
+  page-break-after: avoid;
+}
+
+/* ---------- 4. THÂN BÀI ---------- */
+
+p { margin: 0 0 6pt; }
+
+ul, ol { margin: 0 0 6pt; padding-left: 16pt; }
+li     { margin-bottom: 2pt; }
+
+code, kbd, samp, .mono {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 7.2pt;
+}
+
+strong, b { font-weight: bold; }
+em, i     { font-style: italic; }
+
+/* ---------- 5. BẢNG ---------- */
+
+.caption {                       /* Bảng 3.4. Quy mô dữ liệu */
+  font-size: 8.4pt;
+  font-weight: bold;
+  margin: 0 0 7pt;
+  page-break-after: avoid;
+}
+
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 7.8pt;
+  margin: 0 0 17pt;
+  page-break-inside: avoid;      /* bảng ngắn giữ nguyên một khối */
+}
+
+/* Bảng dài: cho vắt sang trang thay vì đẩy cả bảng đi, để không bỏ trống
+   nửa trang trước đó. Đầu bảng lặp lại ở mỗi trang, dòng không bị cắt ngang.
+   Cần có <thead> để phần lặp hoạt động. */
+table.data.long {
+  page-break-inside: auto;
+}
+
+table.data.long thead {
+  display: table-header-group;
+}
+
+table.data.long tr {
+  page-break-inside: avoid;
+}
+
+table.data th {
+  font-weight: bold;
+  text-align: left;
+  border-bottom: 0.6pt solid #000;
+  padding: 3.4pt 6pt 3.4pt 0;
+  vertical-align: bottom;
+}
+
+table.data td {
+  border-bottom: 0.5pt solid #cfcfcf;
+  padding: 4.2pt 6pt 4.2pt 0;    /* dòng cao ~16.1pt */
+  vertical-align: top;
+}
+
+table.data th:last-child,
+table.data td:last-child { padding-right: 0; }
+
+table.data .num {                /* cột số căn phải */
+  text-align: right;
+  white-space: nowrap;
+}
+
+table.data code { font-size: 7.2pt; }
+
+/* ---------- 6. KHỐI LƯU Ý ---------- */
+
+.note {
+  background: #f6f6f6;
+  border-left: 1.8pt solid #555;
+  /* Đo từ bản gốc: chữ bắt đầu ở x 73.0, tức 9pt sau vạch trái, và chạy tới
+     sát mép phải 537.8, tức không có padding phải. */
+  padding: 7pt 0 7pt 9pt;
+  margin: 0 0 12pt;
+  font-size: 9pt;
+  page-break-inside: avoid;
+}
+
+.note p:last-child { margin-bottom: 0; }
+.note .lead        { font-weight: bold; }
+
+/* ---------- 7. KHỐI MÃ ---------- */
+
+pre {
+  background: #f6f6f6;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 7.2pt;
+  line-height: 10.4pt;
+  padding: 6pt 6.6pt;
+  margin: 0 0 12pt;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  page-break-inside: avoid;
+}
+
+pre b, pre strong { font-weight: bold; }
+
+/* ---------- 8. SƠ ĐỒ LUỒNG ---------- */
+
+.flow {
+  margin: 0 auto 8pt;
+  width: 265.8pt;               /* x 166.8 -> 432.6 */
+  text-align: center;
+  page-break-inside: avoid;
+}
+
+.flow .node {
+  background: #eeeeee;
+  padding: 5pt 8pt;
+  font-size: 8.4pt;
+  line-height: 11pt;
+}
+
+.flow .node b { display: block; font-size: 9pt; }
+
+.flow .arrow {
+  font-size: 8.4pt;
+  line-height: 13pt;
+  color: #555;
+}
+
+.figcaption {
+  font-size: 8.4pt;
+  text-align: center;
+  margin: 0 0 17pt;
+}
+
+/* ---------- 9. TIỆN ÍCH ---------- */
+
+.page-break { page-break-before: always; }
+.nobreak    { page-break-inside: avoid; }
+.center     { text-align: center; }
+.muted      { color: #555; }
