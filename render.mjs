@@ -16,7 +16,7 @@ import { pathToFileURL } from 'node:url';
 
 const input = resolve(process.argv[2] ?? 'report.html');
 const output = resolve(process.argv[3] ?? 'build/report.pdf');
-const footerLeft = process.argv[4] ?? 'Báo cáo hệ thống ứng dụng Yody Order Service';
+const footerLeft = process.argv[4] ?? 'Báo cáo hệ thống ứng dụng';
 
 const EDGE_CANDIDATES = [
   'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
